@@ -1,1 +1,1190 @@
-
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyPedHH4oUPU5D4xwqo5+0zC",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/divakar343/projects/blob/main/AI%26ML\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**hand written digit prediction -classification analysis**"
+      ],
+      "metadata": {
+        "id": "tJPI11uN5wm_"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "the digits daraset consiste of 8*8 pixel images of digits. the images attribute of the dataset stores 8*8 arrays of grayscale values for  ecah image .we will use these arrays to visuailze the first 4 images . the target attribute of the dataset stores the digit each image represents"
+      ],
+      "metadata": {
+        "id": "yhY4K6Ua54jH"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "import library"
+      ],
+      "metadata": {
+        "id": "gLK_VrTqxAHH"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "lH9gRHBZ49wY"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n"
+      ],
+      "metadata": {
+        "id": "8kSnZhCowtEr"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np"
+      ],
+      "metadata": {
+        "id": "uEBix7fFwxJP"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import matplotlib.pyplot as plt"
+      ],
+      "metadata": {
+        "id": "-HuWqsuXw3eu"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "import data"
+      ],
+      "metadata": {
+        "id": "6CcDQuHKxL1O"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.datasets import load_digits"
+      ],
+      "metadata": {
+        "id": "GVAQrHyRw-0E"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df = load_digits()"
+      ],
+      "metadata": {
+        "id": "s1UVuUaxxYv4"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "_, axes=plt.subplots(nrows=1, ncols=4, figsize=(10,3))\n",
+        "for ax,image,label in zip(axes, df.images, df.target):\n",
+        "  ax.set_axis_off()\n",
+        "  ax.imshow(image, cmap=plt.cm.gray_r,interpolation=\"nearest\")\n",
+        "  ax.set_title(\"training: %i\" % label)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 247
+        },
+        "id": "QPnFX9oCxdVC",
+        "outputId": "654614e8-8e5c-48f3-dd33-a1056dd0e180"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<Figure size 1000x300 with 4 Axes>"
+            ],
+            "image/png": "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1q1bY+7cudGnT594++23Cz6/Jymp26gKMXz48HMe3759ezz88MOxf//+OHnyZOfxQu/Tvvbaa7u8/d43Yltb20Wf+97QvH9rrby8vHMr8kJUVlZGe3v7Od934sSJLn8JcHkxJ1AYs3Jup0+fjmnTpsXvf//7+MUvfhEf+chHcsmlZzInZ7v66qvj6quvjoiIu+66K775zW/GxIkT4+DBg54g3tOd6wH0nj17YvLkyVFRURHf+c534uc//3ns2LEj7r777oJbau/evc95vJDzL+bci/HhD384Tp8+HW+++WaX4+3t7XH48GE/HC5j5gQKY1bObfbs2bF9+/bYuHFjTJgw4b92XS5N5uT87rrrrvj3v/8dzz//fFGun1LJ7WxcyCvGPPvss1FRUREvvfRSl5dX27BhQ55Lu2BDhw6NiIjXXnstxo8f33n83XffjdbW1vjEJz5xQbm1tbURcWar8Lbbbus8vnfv3ujo6Oh8P6XHnEBhzEr3LV68ODZs2BCrVq2K6dOnX1QWPYM5uXjv3bp+7NixXHMvBSW3s9GvX7+I6N5Lh/Xu3TvKysri9OnTncdaW1tj27ZtOa/uwowePToGDhwYTz/9dLz77rudx5955plzbhUW+vJrEyZMiOrq6li7dm2X42vXro2+ffsW9EoQ9Ezm5OJfppDLg1np3qw8+uijsWLFivja174WX/7yl3NbM5c2c1L4nPzzn/885+7J9773vc7rlpqS29kYNWpUREQ8+OCDMW3atOjTp0/cfvvtnYNwLpMmTYqVK1fGrbfeGnfffXe8+eabsWbNmrjuuuviwIED/62lf6ArrrgiGhsbY8GCBTFhwoSYOnVqtLa2xsaNG+OjH/3oWf+iUOjLr1VWVsayZcti3rx50dDQEJ/97Gdjz549sWnTpnjkkUeiuro65adFEZmT7r1M4U9/+tN49dVXIyLi1KlTceDAgXj44YcjImLy5Ml2TUqYWSl8Vp577rn46le/Gtdff32MGDEiNm3a1OX9EydO7LxHndJiTgqfk02bNsW6deuivr4+ampq4q233oqXXnopduzYEbfffntJ3nZYcmXj5ptvjmXLlsW6devixRdfjI6Ojjh06NB//IafMGFCrF+/PpqammLhwoUxfPjwWL58ebS2tl4S3/AREfPnz48sy+Kxxx6LBx54IEaOHBkvvPBCfOlLX+rW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\n"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.images.shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "zuP0QmTCzdCV",
+        "outputId": "35be7436-55d8-4c70-8e39-9555bb446383"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(1797, 8, 8)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 12
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.images[0]"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "SwrrOfZDzhby",
+        "outputId": "7cede36d-1a5f-49c0-fca0-e34cb5b2811f"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[ 0.,  0.,  5., 13.,  9.,  1.,  0.,  0.],\n",
+              "       [ 0.,  0., 13., 15., 10., 15.,  5.,  0.],\n",
+              "       [ 0.,  3., 15.,  2.,  0., 11.,  8.,  0.],\n",
+              "       [ 0.,  4., 12.,  0.,  0.,  8.,  8.,  0.],\n",
+              "       [ 0.,  5.,  8.,  0.,  0.,  9.,  8.,  0.],\n",
+              "       [ 0.,  4., 11.,  0.,  1., 12.,  7.,  0.],\n",
+              "       [ 0.,  2., 14.,  5., 10., 12.,  0.,  0.],\n",
+              "       [ 0.,  0.,  6., 13., 10.,  0.,  0.,  0.]])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 13
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.images[0].shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "vAvnH_QyzmdK",
+        "outputId": "7314f8a4-6ec9-4321-875b-11c87b165922"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(8, 8)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 14
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "len(df.images)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "FiFxPtiDztew",
+        "outputId": "787f1368-4e00-427a-cabf-63bf24b5579c"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "1797"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 15
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "n_samples=len(df.images)\n",
+        "data=df.images.reshape((n_samples,-1))"
+      ],
+      "metadata": {
+        "id": "NF6kenoizxDI"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data[0].shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "NkZdwrTj0A1a",
+        "outputId": "ecd3b5ae-81e4-4f81-8030-8263f5308a12"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(64,)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 17
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data.shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "_SFwDs7h0Egh",
+        "outputId": "9f96f9f7-6e8b-4c17-b937-950cc56cbc33"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(1797, 64)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 18
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Scaling image data"
+      ],
+      "metadata": {
+        "id": "Ew4pURJh0Jjs"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data.min()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "VjcpJABF0L90",
+        "outputId": "05f650e4-4de2-45d1-ba77-5c78a6b34cba"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.0"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 19
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data.max()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "TbT-ikql0RD1",
+        "outputId": "3c87929c-02d3-4850-9922-9945d501baa4"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "16.0"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 20
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data=data/16"
+      ],
+      "metadata": {
+        "id": "Ohx0Z-N40VNi"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data.min()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "oauFVvrD0a06",
+        "outputId": "46bf6de8-b36f-48d3-8d55-d512c665f9c6"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.0"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 22
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data.max()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "vf1T_BSQ0dlU",
+        "outputId": "a20394b7-61f6-47b3-8152-780f4e870906"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "1.0"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 23
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data[0]"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "xmjT0xlH0gIc",
+        "outputId": "e5049e73-e131-4345-84da-f8a94e24bb1e"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([0.    , 0.    , 0.3125, 0.8125, 0.5625, 0.0625, 0.    , 0.    ,\n",
+              "       0.    , 0.    , 0.8125, 0.9375, 0.625 , 0.9375, 0.3125, 0.    ,\n",
+              "       0.    , 0.1875, 0.9375, 0.125 , 0.    , 0.6875, 0.5   , 0.    ,\n",
+              "       0.    , 0.25  , 0.75  , 0.    , 0.    , 0.5   , 0.5   , 0.    ,\n",
+              "       0.    , 0.3125, 0.5   , 0.    , 0.    , 0.5625, 0.5   , 0.    ,\n",
+              "       0.    , 0.25  , 0.6875, 0.    , 0.0625, 0.75  , 0.4375, 0.    ,\n",
+              "       0.    , 0.125 , 0.875 , 0.3125, 0.625 , 0.75  , 0.    , 0.    ,\n",
+              "       0.    , 0.    , 0.375 , 0.8125, 0.625 , 0.    , 0.    , 0.    ])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 24
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "train test split data"
+      ],
+      "metadata": {
+        "id": "JpdjHhcB0lof"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.model_selection import train_test_split"
+      ],
+      "metadata": {
+        "id": "vVzusdqo0pDE"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "x_train, x_test, y_train, y_test =train_test_split(data,df.target,test_size=0.3)"
+      ],
+      "metadata": {
+        "id": "fWrFKJb900qB"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "x_train.shape, x_test.shape, y_train.shape, y_test.shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "-YvCtod21J4N",
+        "outputId": "edbe8445-7a37-44a9-c648-247244691848"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "((1257, 64), (540, 64), (1257,), (540,))"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 29
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "random forest model"
+      ],
+      "metadata": {
+        "id": "rTdI72Uk1xeB"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.ensemble import RandomForestClassifier"
+      ],
+      "metadata": {
+        "id": "mBlkZyx311Y0"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "rf=RandomForestClassifier()"
+      ],
+      "metadata": {
+        "id": "wY-_QuOy1-U-"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "rf.fit(x_train,y_train)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 80
+        },
+        "id": "zrCAZaGW2Bdn",
+        "outputId": "27cbaeb5-eba6-4032-9545-b18fce3d55b7"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "RandomForestClassifier()"
+            ],
+            "text/html": [
+              "<style>#sk-container-id-1 {\n",
+              "  /* Definition of color scheme common for light and dark mode */\n",
+              "  --sklearn-color-text: #000;\n",
+              "  --sklearn-color-text-muted: #666;\n",
+              "  --sklearn-color-line: gray;\n",
+              "  /* Definition of color scheme for unfitted estimators */\n",
+              "  --sklearn-color-unfitted-level-0: #fff5e6;\n",
+              "  --sklearn-color-unfitted-level-1: #f6e4d2;\n",
+              "  --sklearn-color-unfitted-level-2: #ffe0b3;\n",
+              "  --sklearn-color-unfitted-level-3: chocolate;\n",
+              "  /* Definition of color scheme for fitted estimators */\n",
+              "  --sklearn-color-fitted-level-0: #f0f8ff;\n",
+              "  --sklearn-color-fitted-level-1: #d4ebff;\n",
+              "  --sklearn-color-fitted-level-2: #b3dbfd;\n",
+              "  --sklearn-color-fitted-level-3: cornflowerblue;\n",
+              "\n",
+              "  /* Specific color for light theme */\n",
+              "  --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));\n",
+              "  --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, white)));\n",
+              "  --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));\n",
+              "  --sklearn-color-icon: #696969;\n",
+              "\n",
+              "  @media (prefers-color-scheme: dark) {\n",
+              "    /* Redefinition of color scheme for dark theme */\n",
+              "    --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));\n",
+              "    --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, #111)));\n",
+              "    --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));\n",
+              "    --sklearn-color-icon: #878787;\n",
+              "  }\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 {\n",
+              "  color: var(--sklearn-color-text);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 pre {\n",
+              "  padding: 0;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 input.sk-hidden--visually {\n",
+              "  border: 0;\n",
+              "  clip: rect(1px 1px 1px 1px);\n",
+              "  clip: rect(1px, 1px, 1px, 1px);\n",
+              "  height: 1px;\n",
+              "  margin: -1px;\n",
+              "  overflow: hidden;\n",
+              "  padding: 0;\n",
+              "  position: absolute;\n",
+              "  width: 1px;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-dashed-wrapped {\n",
+              "  border: 1px dashed var(--sklearn-color-line);\n",
+              "  margin: 0 0.4em 0.5em 0.4em;\n",
+              "  box-sizing: border-box;\n",
+              "  padding-bottom: 0.4em;\n",
+              "  background-color: var(--sklearn-color-background);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-container {\n",
+              "  /* jupyter's `normalize.less` sets `[hidden] { display: none; }`\n",
+              "     but bootstrap.min.css set `[hidden] { display: none !important; }`\n",
+              "     so we also need the `!important` here to be able to override the\n",
+              "     default hidden behavior on the sphinx rendered scikit-learn.org.\n",
+              "     See: https://github.com/scikit-learn/scikit-learn/issues/21755 */\n",
+              "  display: inline-block !important;\n",
+              "  position: relative;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-text-repr-fallback {\n",
+              "  display: none;\n",
+              "}\n",
+              "\n",
+              "div.sk-parallel-item,\n",
+              "div.sk-serial,\n",
+              "div.sk-item {\n",
+              "  /* draw centered vertical line to link estimators */\n",
+              "  background-image: linear-gradient(var(--sklearn-color-text-on-default-background), var(--sklearn-color-text-on-default-background));\n",
+              "  background-size: 2px 100%;\n",
+              "  background-repeat: no-repeat;\n",
+              "  background-position: center center;\n",
+              "}\n",
+              "\n",
+              "/* Parallel-specific style estimator block */\n",
+              "\n",
+              "#sk-container-id-1 div.sk-parallel-item::after {\n",
+              "  content: \"\";\n",
+              "  width: 100%;\n",
+              "  border-bottom: 2px solid var(--sklearn-color-text-on-default-background);\n",
+              "  flex-grow: 1;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-parallel {\n",
+              "  display: flex;\n",
+              "  align-items: stretch;\n",
+              "  justify-content: center;\n",
+              "  background-color: var(--sklearn-color-background);\n",
+              "  position: relative;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-parallel-item {\n",
+              "  display: flex;\n",
+              "  flex-direction: column;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-parallel-item:first-child::after {\n",
+              "  align-self: flex-end;\n",
+              "  width: 50%;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-parallel-item:last-child::after {\n",
+              "  align-self: flex-start;\n",
+              "  width: 50%;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-parallel-item:only-child::after {\n",
+              "  width: 0;\n",
+              "}\n",
+              "\n",
+              "/* Serial-specific style estimator block */\n",
+              "\n",
+              "#sk-container-id-1 div.sk-serial {\n",
+              "  display: flex;\n",
+              "  flex-direction: column;\n",
+              "  align-items: center;\n",
+              "  background-color: var(--sklearn-color-background);\n",
+              "  padding-right: 1em;\n",
+              "  padding-left: 1em;\n",
+              "}\n",
+              "\n",
+              "\n",
+              "/* Toggleable style: style used for estimator/Pipeline/ColumnTransformer box that is\n",
+              "clickable and can be expanded/collapsed.\n",
+              "- Pipeline and ColumnTransformer use this feature and define the default style\n",
+              "- Estimators will overwrite some part of the style using the `sk-estimator` class\n",
+              "*/\n",
+              "\n",
+              "/* Pipeline and ColumnTransformer style (default) */\n",
+              "\n",
+              "#sk-container-id-1 div.sk-toggleable {\n",
+              "  /* Default theme specific background. It is overwritten whether we have a\n",
+              "  specific estimator or a Pipeline/ColumnTransformer */\n",
+              "  background-color: var(--sklearn-color-background);\n",
+              "}\n",
+              "\n",
+              "/* Toggleable label */\n",
+              "#sk-container-id-1 label.sk-toggleable__label {\n",
+              "  cursor: pointer;\n",
+              "  display: flex;\n",
+              "  width: 100%;\n",
+              "  margin-bottom: 0;\n",
+              "  padding: 0.5em;\n",
+              "  box-sizing: border-box;\n",
+              "  text-align: center;\n",
+              "  align-items: start;\n",
+              "  justify-content: space-between;\n",
+              "  gap: 0.5em;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 label.sk-toggleable__label .caption {\n",
+              "  font-size: 0.6rem;\n",
+              "  font-weight: lighter;\n",
+              "  color: var(--sklearn-color-text-muted);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 label.sk-toggleable__label-arrow:before {\n",
+              "  /* Arrow on the left of the label */\n",
+              "  content: \"▸\";\n",
+              "  float: left;\n",
+              "  margin-right: 0.25em;\n",
+              "  color: var(--sklearn-color-icon);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 label.sk-toggleable__label-arrow:hover:before {\n",
+              "  color: var(--sklearn-color-text);\n",
+              "}\n",
+              "\n",
+              "/* Toggleable content - dropdown */\n",
+              "\n",
+              "#sk-container-id-1 div.sk-toggleable__content {\n",
+              "  max-height: 0;\n",
+              "  max-width: 0;\n",
+              "  overflow: hidden;\n",
+              "  text-align: left;\n",
+              "  /* unfitted */\n",
+              "  background-color: var(--sklearn-color-unfitted-level-0);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-toggleable__content.fitted {\n",
+              "  /* fitted */\n",
+              "  background-color: var(--sklearn-color-fitted-level-0);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-toggleable__content pre {\n",
+              "  margin: 0.2em;\n",
+              "  border-radius: 0.25em;\n",
+              "  color: var(--sklearn-color-text);\n",
+              "  /* unfitted */\n",
+              "  background-color: var(--sklearn-color-unfitted-level-0);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-toggleable__content.fitted pre {\n",
+              "  /* unfitted */\n",
+              "  background-color: var(--sklearn-color-fitted-level-0);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 input.sk-toggleable__control:checked~div.sk-toggleable__content {\n",
+              "  /* Expand drop-down */\n",
+              "  max-height: 200px;\n",
+              "  max-width: 100%;\n",
+              "  overflow: auto;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {\n",
+              "  content: \"▾\";\n",
+              "}\n",
+              "\n",
+              "/* Pipeline/ColumnTransformer-specific style */\n",
+              "\n",
+              "#sk-container-id-1 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {\n",
+              "  color: var(--sklearn-color-text);\n",
+              "  background-color: var(--sklearn-color-unfitted-level-2);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {\n",
+              "  background-color: var(--sklearn-color-fitted-level-2);\n",
+              "}\n",
+              "\n",
+              "/* Estimator-specific style */\n",
+              "\n",
+              "/* Colorize estimator box */\n",
+              "#sk-container-id-1 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {\n",
+              "  /* unfitted */\n",
+              "  background-color: var(--sklearn-color-unfitted-level-2);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {\n",
+              "  /* fitted */\n",
+              "  background-color: var(--sklearn-color-fitted-level-2);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-label label.sk-toggleable__label,\n",
+              "#sk-container-id-1 div.sk-label label {\n",
+              "  /* The background is the default theme color */\n",
+              "  color: var(--sklearn-color-text-on-default-background);\n",
+              "}\n",
+              "\n",
+              "/* On hover, darken the color of the background */\n",
+              "#sk-container-id-1 div.sk-label:hover label.sk-toggleable__label {\n",
+              "  color: var(--sklearn-color-text);\n",
+              "  background-color: var(--sklearn-color-unfitted-level-2);\n",
+              "}\n",
+              "\n",
+              "/* Label box, darken color on hover, fitted */\n",
+              "#sk-container-id-1 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {\n",
+              "  color: var(--sklearn-color-text);\n",
+              "  background-color: var(--sklearn-color-fitted-level-2);\n",
+              "}\n",
+              "\n",
+              "/* Estimator label */\n",
+              "\n",
+              "#sk-container-id-1 div.sk-label label {\n",
+              "  font-family: monospace;\n",
+              "  font-weight: bold;\n",
+              "  display: inline-block;\n",
+              "  line-height: 1.2em;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-label-container {\n",
+              "  text-align: center;\n",
+              "}\n",
+              "\n",
+              "/* Estimator-specific */\n",
+              "#sk-container-id-1 div.sk-estimator {\n",
+              "  font-family: monospace;\n",
+              "  border: 1px dotted var(--sklearn-color-border-box);\n",
+              "  border-radius: 0.25em;\n",
+              "  box-sizing: border-box;\n",
+              "  margin-bottom: 0.5em;\n",
+              "  /* unfitted */\n",
+              "  background-color: var(--sklearn-color-unfitted-level-0);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-estimator.fitted {\n",
+              "  /* fitted */\n",
+              "  background-color: var(--sklearn-color-fitted-level-0);\n",
+              "}\n",
+              "\n",
+              "/* on hover */\n",
+              "#sk-container-id-1 div.sk-estimator:hover {\n",
+              "  /* unfitted */\n",
+              "  background-color: var(--sklearn-color-unfitted-level-2);\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 div.sk-estimator.fitted:hover {\n",
+              "  /* fitted */\n",
+              "  background-color: var(--sklearn-color-fitted-level-2);\n",
+              "}\n",
+              "\n",
+              "/* Specification for estimator info (e.g. \"i\" and \"?\") */\n",
+              "\n",
+              "/* Common style for \"i\" and \"?\" */\n",
+              "\n",
+              ".sk-estimator-doc-link,\n",
+              "a:link.sk-estimator-doc-link,\n",
+              "a:visited.sk-estimator-doc-link {\n",
+              "  float: right;\n",
+              "  font-size: smaller;\n",
+              "  line-height: 1em;\n",
+              "  font-family: monospace;\n",
+              "  background-color: var(--sklearn-color-background);\n",
+              "  border-radius: 1em;\n",
+              "  height: 1em;\n",
+              "  width: 1em;\n",
+              "  text-decoration: none !important;\n",
+              "  margin-left: 0.5em;\n",
+              "  text-align: center;\n",
+              "  /* unfitted */\n",
+              "  border: var(--sklearn-color-unfitted-level-1) 1pt solid;\n",
+              "  color: var(--sklearn-color-unfitted-level-1);\n",
+              "}\n",
+              "\n",
+              ".sk-estimator-doc-link.fitted,\n",
+              "a:link.sk-estimator-doc-link.fitted,\n",
+              "a:visited.sk-estimator-doc-link.fitted {\n",
+              "  /* fitted */\n",
+              "  border: var(--sklearn-color-fitted-level-1) 1pt solid;\n",
+              "  color: var(--sklearn-color-fitted-level-1);\n",
+              "}\n",
+              "\n",
+              "/* On hover */\n",
+              "div.sk-estimator:hover .sk-estimator-doc-link:hover,\n",
+              ".sk-estimator-doc-link:hover,\n",
+              "div.sk-label-container:hover .sk-estimator-doc-link:hover,\n",
+              ".sk-estimator-doc-link:hover {\n",
+              "  /* unfitted */\n",
+              "  background-color: var(--sklearn-color-unfitted-level-3);\n",
+              "  color: var(--sklearn-color-background);\n",
+              "  text-decoration: none;\n",
+              "}\n",
+              "\n",
+              "div.sk-estimator.fitted:hover .sk-estimator-doc-link.fitted:hover,\n",
+              ".sk-estimator-doc-link.fitted:hover,\n",
+              "div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,\n",
+              ".sk-estimator-doc-link.fitted:hover {\n",
+              "  /* fitted */\n",
+              "  background-color: var(--sklearn-color-fitted-level-3);\n",
+              "  color: var(--sklearn-color-background);\n",
+              "  text-decoration: none;\n",
+              "}\n",
+              "\n",
+              "/* Span, style for the box shown on hovering the info icon */\n",
+              ".sk-estimator-doc-link span {\n",
+              "  display: none;\n",
+              "  z-index: 9999;\n",
+              "  position: relative;\n",
+              "  font-weight: normal;\n",
+              "  right: .2ex;\n",
+              "  padding: .5ex;\n",
+              "  margin: .5ex;\n",
+              "  width: min-content;\n",
+              "  min-width: 20ex;\n",
+              "  max-width: 50ex;\n",
+              "  color: var(--sklearn-color-text);\n",
+              "  box-shadow: 2pt 2pt 4pt #999;\n",
+              "  /* unfitted */\n",
+              "  background: var(--sklearn-color-unfitted-level-0);\n",
+              "  border: .5pt solid var(--sklearn-color-unfitted-level-3);\n",
+              "}\n",
+              "\n",
+              ".sk-estimator-doc-link.fitted span {\n",
+              "  /* fitted */\n",
+              "  background: var(--sklearn-color-fitted-level-0);\n",
+              "  border: var(--sklearn-color-fitted-level-3);\n",
+              "}\n",
+              "\n",
+              ".sk-estimator-doc-link:hover span {\n",
+              "  display: block;\n",
+              "}\n",
+              "\n",
+              "/* \"?\"-specific style due to the `<a>` HTML tag */\n",
+              "\n",
+              "#sk-container-id-1 a.estimator_doc_link {\n",
+              "  float: right;\n",
+              "  font-size: 1rem;\n",
+              "  line-height: 1em;\n",
+              "  font-family: monospace;\n",
+              "  background-color: var(--sklearn-color-background);\n",
+              "  border-radius: 1rem;\n",
+              "  height: 1rem;\n",
+              "  width: 1rem;\n",
+              "  text-decoration: none;\n",
+              "  /* unfitted */\n",
+              "  color: var(--sklearn-color-unfitted-level-1);\n",
+              "  border: var(--sklearn-color-unfitted-level-1) 1pt solid;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 a.estimator_doc_link.fitted {\n",
+              "  /* fitted */\n",
+              "  border: var(--sklearn-color-fitted-level-1) 1pt solid;\n",
+              "  color: var(--sklearn-color-fitted-level-1);\n",
+              "}\n",
+              "\n",
+              "/* On hover */\n",
+              "#sk-container-id-1 a.estimator_doc_link:hover {\n",
+              "  /* unfitted */\n",
+              "  background-color: var(--sklearn-color-unfitted-level-3);\n",
+              "  color: var(--sklearn-color-background);\n",
+              "  text-decoration: none;\n",
+              "}\n",
+              "\n",
+              "#sk-container-id-1 a.estimator_doc_link.fitted:hover {\n",
+              "  /* fitted */\n",
+              "  background-color: var(--sklearn-color-fitted-level-3);\n",
+              "}\n",
+              "</style><div id=\"sk-container-id-1\" class=\"sk-top-container\"><div class=\"sk-text-repr-fallback\"><pre>RandomForestClassifier()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class=\"sk-container\" hidden><div class=\"sk-item\"><div class=\"sk-estimator fitted sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-1\" type=\"checkbox\" checked><label for=\"sk-estimator-id-1\" class=\"sk-toggleable__label fitted sk-toggleable__label-arrow\"><div><div>RandomForestClassifier</div></div><div><a class=\"sk-estimator-doc-link fitted\" rel=\"noreferrer\" target=\"_blank\" href=\"https://scikit-learn.org/1.6/modules/generated/sklearn.ensemble.RandomForestClassifier.html\">?<span>Documentation for RandomForestClassifier</span></a><span class=\"sk-estimator-doc-link fitted\">i<span>Fitted</span></span></div></label><div class=\"sk-toggleable__content fitted\"><pre>RandomForestClassifier()</pre></div> </div></div></div></div>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 32
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "predict test data"
+      ],
+      "metadata": {
+        "id": "909eG-eA2INI"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "y_pred=rf.predict(x_test)"
+      ],
+      "metadata": {
+        "id": "HK3dSNBb2LlV"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "y_pred"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "2nhtOsGY2QD-",
+        "outputId": "6dfb92dd-f3b7-4010-b62c-3d2366ecfd4d"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([9, 8, 9, 1, 9, 0, 2, 4, 0, 8, 4, 1, 7, 2, 6, 2, 3, 3, 5, 5, 7, 9,\n",
+              "       5, 7, 3, 7, 4, 2, 1, 6, 1, 3, 5, 4, 0, 7, 4, 6, 4, 9, 4, 3, 9, 4,\n",
+              "       6, 8, 2, 7, 5, 1, 0, 3, 6, 4, 8, 5, 3, 5, 0, 1, 0, 0, 9, 2, 7, 2,\n",
+              "       6, 1, 4, 7, 3, 2, 0, 4, 0, 4, 3, 7, 3, 2, 0, 1, 6, 7, 7, 5, 7, 7,\n",
+              "       4, 3, 4, 0, 4, 6, 0, 5, 8, 7, 0, 8, 9, 6, 7, 8, 7, 2, 5, 6, 2, 6,\n",
+              "       5, 2, 1, 0, 9, 5, 5, 1, 9, 9, 6, 4, 9, 1, 0, 2, 0, 7, 8, 8, 1, 1,\n",
+              "       1, 4, 2, 4, 6, 2, 0, 0, 4, 8, 1, 2, 4, 8, 9, 8, 8, 3, 8, 6, 7, 9,\n",
+              "       4, 8, 8, 4, 7, 3, 1, 8, 6, 3, 4, 4, 4, 8, 3, 7, 2, 3, 3, 5, 9, 1,\n",
+              "       6, 9, 9, 4, 4, 0, 0, 2, 1, 9, 9, 8, 4, 8, 4, 0, 5, 2, 9, 2, 9, 9,\n",
+              "       0, 6, 9, 4, 3, 7, 3, 5, 6, 9, 9, 3, 2, 7, 7, 6, 1, 4, 3, 5, 3, 1,\n",
+              "       7, 7, 3, 1, 9, 6, 1, 2, 8, 7, 9, 8, 6, 0, 9, 3, 3, 5, 3, 6, 0, 1,\n",
+              "       5, 7, 8, 8, 0, 2, 3, 7, 0, 3, 0, 3, 3, 9, 0, 7, 4, 3, 1, 7, 7, 9,\n",
+              "       1, 5, 6, 9, 1, 6, 4, 4, 1, 8, 5, 4, 0, 8, 0, 6, 8, 3, 8, 3, 3, 1,\n",
+              "       1, 7, 6, 5, 0, 5, 3, 4, 5, 2, 7, 1, 8, 1, 7, 1, 4, 7, 5, 1, 5, 2,\n",
+              "       1, 2, 8, 5, 9, 5, 3, 5, 8, 9, 0, 5, 0, 8, 6, 1, 1, 0, 5, 2, 1, 1,\n",
+              "       3, 3, 6, 1, 5, 4, 4, 7, 0, 6, 5, 7, 3, 9, 3, 6, 9, 9, 7, 1, 2, 0,\n",
+              "       4, 5, 2, 1, 3, 3, 9, 5, 5, 6, 9, 3, 0, 9, 8, 1, 4, 0, 0, 5, 0, 6,\n",
+              "       2, 1, 1, 1, 0, 7, 6, 0, 0, 3, 2, 6, 6, 7, 8, 6, 3, 6, 1, 6, 6, 8,\n",
+              "       4, 5, 9, 0, 7, 4, 4, 7, 0, 8, 2, 6, 4, 0, 8, 0, 6, 6, 7, 5, 2, 1,\n",
+              "       2, 5, 6, 2, 4, 7, 6, 0, 0, 3, 5, 3, 7, 1, 9, 0, 2, 0, 5, 5, 0, 6,\n",
+              "       9, 1, 9, 6, 1, 2, 0, 8, 0, 2, 9, 1, 4, 6, 9, 6, 4, 2, 1, 6, 9, 6,\n",
+              "       8, 7, 1, 4, 7, 4, 0, 9, 3, 6, 7, 5, 3, 3, 3, 1, 9, 9, 7, 2, 0, 6,\n",
+              "       0, 0, 5, 2, 6, 3, 4, 2, 6, 3, 1, 0, 1, 5, 3, 1, 5, 9, 9, 7, 4, 9,\n",
+              "       5, 7, 4, 7, 3, 2, 3, 8, 1, 9, 8, 8, 4, 2, 0, 3, 0, 1, 9, 8, 8, 4,\n",
+              "       0, 7, 9, 7, 2, 0, 5, 8, 9, 3, 5, 3])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 34
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "model accurancy"
+      ],
+      "metadata": {
+        "id": "_wpxrGr53c-B"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.metrics import confusion_matrix, classification_report"
+      ],
+      "metadata": {
+        "id": "MfCc59Hq3lpR"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "confusion_matrix(y_test,y_pred)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "1HbkNGSH4pgK",
+        "outputId": "ccab599d-cac8-490e-a34c-a96cd8b56a8a"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[62,  0,  0,  0,  2,  0,  0,  0,  0,  0],\n",
+              "       [ 0, 57,  0,  0,  0,  0,  0,  0,  0,  0],\n",
+              "       [ 0,  0, 45,  0,  0,  0,  0,  0,  0,  0],\n",
+              "       [ 0,  1,  0, 59,  0,  0,  0,  0,  1,  1],\n",
+              "       [ 0,  0,  0,  0, 52,  0,  0,  1,  0,  0],\n",
+              "       [ 0,  0,  0,  0,  1, 47,  0,  0,  1,  1],\n",
+              "       [ 1,  0,  0,  0,  0,  0, 54,  0,  1,  0],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0, 50,  0,  0],\n",
+              "       [ 0,  1,  0,  0,  0,  1,  0,  0, 40,  1],\n",
+              "       [ 0,  0,  0,  0,  0,  2,  0,  3,  2, 53]])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 37
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(classification_report(y_test,y_pred))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "zV2z6P2B4t2K",
+        "outputId": "ff40a63b-cf57-4455-b0e8-3dfa3259d38f"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "              precision    recall  f1-score   support\n",
+            "\n",
+            "           0       0.98      0.97      0.98        64\n",
+            "           1       0.97      1.00      0.98        57\n",
+            "           2       1.00      1.00      1.00        45\n",
+            "           3       1.00      0.95      0.98        62\n",
+            "           4       0.95      0.98      0.96        53\n",
+            "           5       0.94      0.94      0.94        50\n",
+            "           6       1.00      0.96      0.98        56\n",
+            "           7       0.93      1.00      0.96        50\n",
+            "           8       0.89      0.93      0.91        43\n",
+            "           9       0.95      0.88      0.91        60\n",
+            "\n",
+            "    accuracy                           0.96       540\n",
+            "   macro avg       0.96      0.96      0.96       540\n",
+            "weighted avg       0.96      0.96      0.96       540\n",
+            "\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
